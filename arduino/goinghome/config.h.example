@@ -1,0 +1,9 @@
+#ifndef __CONFIG_H
+  #define __CONFIG_H
+
+  #define WIFI_SSID       "your ssid"
+  #define WIFI_PASSWORD   "your wifi password"
+  #define URL             "your.domain.to.goinghome.container"
+  #define PORT            80 #or 443
+
+#endif

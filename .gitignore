@@ -1,3 +1,6 @@
+# ignore arduino config
+arduino/goinghome/config.h
+
 # ignoring cfg file
 config/*.yml
 

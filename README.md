@@ -12,3 +12,9 @@ on the mountain of Weissenstein and work at the swiss parliament:
 home: Weissensteinstrasse, 4515 Oberdorf
 work: Bundesplatz 3, 3005 Bern
 ```
+
+## Arduino
+The arduino display project in `arduino/` is based on source code from
+[Drone Mesh - DIY Wireless Youtube Subscriber Counter 2018 // ESP8266 Subscriber Counter](https://www.youtube.com/watch?v=yfDWCga7iP4).
+The attached `LiquidCrystal.zip` is also a reupload, but it was difficult to find the correct
+version of this library.
