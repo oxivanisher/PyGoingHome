@@ -1,0 +1,1 @@
+* * * * * root /app/going_home.py >> /var/log/task.log 2>&1
