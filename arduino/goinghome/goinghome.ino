@@ -11,7 +11,7 @@ const char* ssid     = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const char *host     = HOST;
 
-int status_count = -1;
+int status_count = 0;
 
 LiquidCrystal_I2C lcd(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
 
@@ -66,7 +66,7 @@ void displayOnLcd(String text)
       break;
     default:
       lcd.print('o');
-      status_count = -1;
+      status_count = 0;
       break;
   }
 }
