@@ -88,7 +88,7 @@ String getGoingHome()
     sprintf(ret, "Unable to connect to server %i", conn_result);
     return ret;
   }
-  String cmd = String("GET / HTTP/1.1\r\nHost: ") + host + "\r\nUser-Agent: ESP8266/1.1\r\nConnection: close\r\n\r\n";
+  String cmd = String("GET /arduino.json HTTP/1.1\r\nHost: ") + host + "\r\nUser-Agent: ESP8266/1.1\r\nConnection: close\r\n\r\n";
   client.print(cmd);
 
   int repeatCounter = 10;

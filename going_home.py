@@ -61,29 +61,60 @@ def render_time_line(in_seconds, src, dst):
                                      dst))
 
 
+def get_fetcher():
+    locations_file = os.path.join("config", "locations.yml")
+    with open(locations_file) as file:
+        logging.debug("Server loading locations from %s" % locations_file)
+        locations = yaml.load(file, Loader=yaml.FullLoader)
+    fetcher = PublicTransportFetcher()
+    fetcher.locations = locations
+    return fetcher
+
 class StaticServer(BaseHTTPRequestHandler):
 
-    def execute_request(self):
-        locations_file = os.path.join("config", "locations.yml")
-        with open(locations_file) as file:
-            logging.debug("Server loading locations from %s" % locations_file)
-            locations = yaml.load(file, Loader=yaml.FullLoader)
-
-        logging.info("Handling request from %s" % self.address_string())
-
-        fetcher = PublicTransportFetcher()
-        fetcher.locations = locations
-
+    def execute_arduino_request(self):
+        logging.info("Handling arduino request from %s" % self.address_string())
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
+        fetcher = get_fetcher()
+        data = fetcher.run()
+        self.wfile.write(json.dumps({'arduino': data['arduino']}).encode("ascii"))
+
+    def execute_json_request(self):
+        logging.info("Handling arduino request from %s" % self.address_string())
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        fetcher = get_fetcher()
         self.wfile.write(json.dumps(fetcher.run()).encode("ascii"))
 
+    def execute_html_request(self):
+        logging.info("Handling arduino request from %s" % self.address_string())
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        fetcher = get_fetcher()
+        data = fetcher.run()
+        self.wfile.write("<html><head><title>Going Home</title><h2>%s</h2>%s<br><pre>%s</pre></html>" % (data['header'],
+                                                                                                         data['delay'],
+                                                                                                         data['all']))
+
     def do_POST(self):
-        self.execute_request()
+        if self.path == '/arduino.json':
+            self.execute_arduino_request()
+        elif self.path == '/all.json':
+            self.execute_json_request()
+        elif self.path == '/index.html':
+            self.execute_html_request()
 
     def do_GET(self):
-        self.execute_request()
+        if self.path == '/arduino.json':
+            self.execute_arduino_request()
+        elif self.path == '/all.json':
+            self.execute_json_request()
+        elif self.path == '/date':
+            self.execute_html_request()
 
 
 class PublicTransportFetcher:
@@ -142,7 +173,7 @@ class PublicTransportFetcher:
             logging.info("Using cached data")
 
     def generate_output(self):
-        ret = {'header': None, 'delay': None, 'details': [], 'error': None, 'arduino': None}
+        ret = {'header': None, 'delay': None, 'details': [], 'error': None, 'arduino': None, 'all': None}
         if "connections" not in self.cache['data'].keys():
             ret['error'] = "No connections found"
             return ret
@@ -158,6 +189,7 @@ class PublicTransportFetcher:
             if not header_done:
                 ret['header'] = render_header(self.cache['start_location'], in_seconds, conn['from']['delay'])
                 ret['arduino'] = render_arduino_header(in_seconds, conn['from']['delay'])
+                ret['all'] = self.cache['data']
                 header_done = True
 
                 delay_list = []
