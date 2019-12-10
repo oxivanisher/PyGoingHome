@@ -195,10 +195,10 @@ class PublicTransportFetcher:
 
                 delay_list = []
                 for section in conn['sections']:
-                    if section['arrival']['delay']:
-                        delay_list.append((section['location']['name'], section['arrival']['delay']))
+                    if 'delay' in section['arrival'].keys():
+                        delay_list.append((section['arrival']['location']['name'], section['arrival']['delay']))
                 if delay_list:
-                    ret['details'] = render_delay_line(delay_list)
+                    ret['delay'] = render_delay_line(delay_list)
 
                 ret['details'].append(render_time_line(in_seconds, conn['from']['station']['name'],
                                                        conn['to']['station']['name']))
