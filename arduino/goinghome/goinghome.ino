@@ -11,16 +11,18 @@ const char* ssid     = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const char *host     = HOST;
 
+int status_count = -1;
+
 LiquidCrystal_I2C lcd(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
 
 void setup()  
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   int cursorPosition=0;
 
   lcd.begin(16,2); 
+  displayOnLcd("Connecting WiFi:");
   lcd.setCursor(0,0);
-  lcd.print("Connecting ....");
 
   WiFi.begin(ssid, password);
   
@@ -34,47 +36,59 @@ void setup()
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Connected!");
-  delay(1000);
+  delay(6000);
 }
 
 void loop() 
 {
-  String goingHome = getGoingHome();
-  String ghheader = getValue(goingHome, '|', 0);
-  String ghdelay = getValue(goingHome, '|', 1);
+  displayOnLcd(getGoingHome());
+  delay(10000);
+}
+
+void displayOnLcd(String text)
+{
+  status_count++;
 
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print(ghheader);
+  lcd.print(text.substring(0,15));
   lcd.setCursor(0, 1);
-  lcd.print(ghdelay);
+  lcd.print(text.substring(16,30));
 
-  delay(30000);
-}
-
-String getValue(String data, char separator, int index)
-{
-    int found = 0;
-    int strIndex[] = { 0, -1 };
-    int maxIndex = data.length() - 1;
-
-    for (int i = 0; i <= maxIndex && found <= index; i++) {
-        if (data.charAt(i) == separator || i == maxIndex) {
-            found++;
-            strIndex[0] = strIndex[1] + 1;
-            strIndex[1] = (i == maxIndex) ? i+1 : i;
-        }
-    }
-    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+  lcd.setCursor(15, 1);
+  switch (status_count) {
+    case 1:
+      lcd.print('.');
+      break;
+    case 2:
+      lcd.print('o');
+      break;
+    case 3:
+      lcd.print('O');
+      break;
+    default:
+      lcd.print('o');
+      status_count = -1;
+      break;
+  }
 }
 
 String getGoingHome()
 {
   WiFiClientSecure client;
-  Serial.print("connecting to "); Serial.println(host);
-  if (!client.connect(host, PORT)) {
-    Serial.println("connection failed");
-    return "false";
+  client.setInsecure();
+  // the certificate is ignored due to several reasons:
+  // * since we do not sync local time to a ntp, most certs would be invalid anyways
+  // * we want to support also self signed certificates
+  // * we do not transfer any sensible data (only reading)
+  Serial.print("try to connect to: "); Serial.print(host); Serial.print(":"); Serial.println(PORT);
+  int conn_result = client.connect(host, PORT);
+  if (! conn_result) {
+    Serial.print("connection failed with return: ");
+    Serial.println(conn_result);
+    char ret[32];
+    sprintf(ret, "Unable to connect to server %i", conn_result);
+    return ret;
   }
   String cmd = String("GET / HTTP/1.1\r\nHost: ") + host + "\r\nUser-Agent: ESP8266/1.1\r\nConnection: close\r\n\r\n";
   client.print(cmd);
@@ -83,7 +97,7 @@ String getGoingHome()
   while (!client.available() && repeatCounter--) {
     delay(500);
   }
-  String line,buf="";
+  String line,json="";
   int startJson=0;
   
   while (client.connected() && client.available()) {
@@ -93,23 +107,18 @@ String getGoingHome()
     {
       for(int i=0;i<line.length();i++)
         if(line[i]=='[' || line[i]==']') line[i]=' ';
-      buf+=line+"\n";
+      json+=line+"\n";
     }
   }
   client.stop();
 
-  DynamicJsonBuffer jsonBuf;
-  JsonObject &root = jsonBuf.parseObject(buf);
-  if (!root.success()) {
-    Serial.println("parseObject() failed");
-    delay(10);
-    return "false";
-  }
-  
-  String goingHome;
-  //goingHome.concat(root["header"]);
-  goingHome.concat("|");
-  //subscribers.concat(root["delay"]);
+  DynamicJsonDocument doc(1024);
+  DeserializationError error = deserializeJson(doc, json);
+  if (error)
+    return "Unable to deserialize Json";
+
+  String goingHome = doc["short"];
+  Serial.print("RCV: ");
   Serial.println(goingHome);
   return goingHome;
 }
