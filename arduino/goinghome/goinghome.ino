@@ -32,11 +32,9 @@ void setup()
     lcd.print(".");
     cursorPosition++;
   }
-  
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Connected!");
-  delay(6000);
+
+  displayOnLcd("Connected!");
+  delay(1000);
 }
 
 void loop() 
@@ -51,7 +49,7 @@ void displayOnLcd(String text)
 
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print(text.substring(0,15));
+  lcd.print(text.substring(0,16));
   lcd.setCursor(0, 1);
   lcd.print(text.substring(16,30));
 
@@ -117,7 +115,7 @@ String getGoingHome()
   if (error)
     return "Unable to deserialize Json";
 
-  String goingHome = doc["short"];
+  String goingHome = doc["arduino"];
   Serial.print("RCV: ");
   Serial.println(goingHome);
   return goingHome;
