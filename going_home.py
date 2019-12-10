@@ -38,7 +38,14 @@ def render_header(location, in_seconds, delay=0):
     if not delay:
         return "Start from %s in %s." % (location, get_long_duration(in_seconds))
     else:
-        return "Start from %s in %s (Delay: %s)" % (location, get_long_duration(in_seconds), delay)
+        return "Start from %s in %s (Delay: %s min)" % (location, get_long_duration(in_seconds), delay)
+
+
+def render_short_header(in_seconds, delay=0):
+    if not delay:
+        return "Start in %s." % (get_long_duration(in_seconds))
+    else:
+        return "Start in %s +%s min" % (get_long_duration(in_seconds), delay)
 
 
 def render_delay_line(delay_list):
@@ -135,7 +142,7 @@ class PublicTransportFetcher:
             logging.info("Using cached data")
 
     def generate_output(self):
-        ret = {'header': None, 'delay': None, 'details': [], 'error': None}
+        ret = {'header': None, 'delay': None, 'details': [], 'error': None, 'short': None}
         if "connections" not in self.cache['data'].keys():
             ret['error'] = "No connections found"
             return ret
@@ -150,6 +157,7 @@ class PublicTransportFetcher:
                 continue
             if not header_done:
                 ret['header'] = render_header(self.cache['start_location'], in_seconds, conn['from']['delay'])
+                ret['short'] = render_short_header(in_seconds, conn['from']['delay'])
                 header_done = True
 
                 delay_list = []
