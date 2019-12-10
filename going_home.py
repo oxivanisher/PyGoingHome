@@ -36,7 +36,7 @@ def get_long_duration(age):
 
 def render_header(location, in_seconds, delay=0):
     if not delay:
-        return "Start from %s in %s." % (location, get_long_duration(in_seconds))
+        return "Start from %s in %s" % (location, get_long_duration(in_seconds))
     else:
         return "Start from %s in %s (Delay: %s min)" % (location, get_long_duration(in_seconds), delay)
 
@@ -92,13 +92,14 @@ class StaticServer(BaseHTTPRequestHandler):
     def execute_html_request(self):
         logging.info("Handling arduino request from %s" % self.address_string())
         self.send_response(200)
-        self.send_header('Content-type', 'application/json')
+        self.send_header('Content-type', 'text/html; charset=utf-8')
         self.end_headers()
         fetcher = get_fetcher()
         data = fetcher.run()
-        self.wfile.write("<html><head><title>Going Home</title><h2>%s</h2>%s<br><pre>%s</pre></html>" % (data['header'],
-                                                                                                         data['delay'],
-                                                                                                         data['all']))
+        ret = "<html><head><title>Going Home</title><h2>%s</h2><h3>Delay</h3>%s<br>" \
+              "<h3>All JSON data</h3><pre style=\"white-space: " \
+              "pre-wrap;\">%s</pre></html>" % (data['header'], data['delay'], data['all'])
+        self.wfile.write(bytes(ret, encoding='utf-8'))
 
     def do_POST(self):
         if self.path == '/arduino.json':
