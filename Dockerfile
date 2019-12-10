@@ -6,7 +6,6 @@ VOLUME /app/cache
 VOLUME /var/log/
 COPY going_home.py .
 COPY requirements.txt .
-COPY ./cronpy /etc/cron.d/cronpy
 COPY config/* config/
 
 EXPOSE 8000
