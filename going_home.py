@@ -105,7 +105,7 @@ class StaticServer(BaseHTTPRequestHandler):
             self.execute_arduino_request()
         elif self.path == '/all.json':
             self.execute_json_request()
-        elif self.path == '/index.html':
+        else:
             self.execute_html_request()
 
     def do_GET(self):
@@ -113,7 +113,7 @@ class StaticServer(BaseHTTPRequestHandler):
             self.execute_arduino_request()
         elif self.path == '/all.json':
             self.execute_json_request()
-        elif self.path == '/date':
+        else:
             self.execute_html_request()
 
 
