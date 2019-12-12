@@ -40,7 +40,7 @@ void setup()
 void loop() 
 {
   displayOnLcd(getGoingHome());
-  delay(10000);
+  delay(LOOPWAIT * 1000);
 }
 
 void displayOnLcd(String text)
