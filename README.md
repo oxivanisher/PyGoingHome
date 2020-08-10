@@ -1,6 +1,6 @@
 # PyGoingHome
 This script uses the transport.opendata.ch API to calculate travel time
-(and when to start). Also it caches the queries and fetches new
+(and when to start) in Switzerland. Also it caches the queries and fetches new
 information every 10 minutes to not hit the [rate limiting](https://timetable.search.ch/api/help).
 
 ## Locations
