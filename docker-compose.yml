@@ -3,8 +3,9 @@ services:
   pywishlist:
     container_name: goinghome
     restart: unless-stopped
-    build: .
+    image: ghcr.io/oxivanisher/pygoinghome:master
+    # build: .
     ports:
-      - "3034:8000"
+      - "8000:8000"
     volumes:
       - ./config:/app/config:ro
