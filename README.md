@@ -8,7 +8,6 @@ Configure your locations in config/locations.yml like so if you i.e. live
 on the mountain of Weissenstein and work at the swiss parliament:
 ```yaml
 ---
-
 home: Weissensteinstrasse, 4515 Oberdorf
 work: Bundesplatz 3, 3005 Bern
 ```
